@@ -62,8 +62,5 @@ class Screens():
 
 if __name__=="__main__":
 
-    a = 1
-
-    h =  suma(1,a)
 
     pass
