@@ -288,7 +288,7 @@ def Main():
 
         pg.display.update()
         #print("flipped")
-          
+        print("a")
           
           
         
