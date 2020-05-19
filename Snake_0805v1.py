@@ -3,6 +3,7 @@
 import pygame as pg
 import sys
 import time
+import random
 
 # Inits
 
@@ -23,6 +24,9 @@ GREEN = (0,255,0)
 BLUE  = (200,200,255)
 BLACK = (0,0,0)
 
+REC_WIDTH = 450
+REC_HEIGHT = 450
+
 # Defaults text
 
 myfont = pg.font.SysFont('Comic Sans MS',12)
@@ -37,7 +41,7 @@ class Snake():
         self.posy = HEIGHT//2 - rh//2
 
         
-        self.body = [pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh))]
+        self.body = [pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh))]
         self.body_len = len(self.body)
         
         self.snake_state = "up"
@@ -52,7 +56,7 @@ class Snake():
         for i in range(len(self.body)):
 
             if i == 0:
-                pg.draw.rect(screen,RED,self.body[i],0)
+                pg.draw.rect(screen,BLUE,self.body[i],0)
             else:
                 pg.draw.rect(screen,color,self.body[i],0)
             #print("Posiciong y ", self.body[i].centery, " Cuerpo ",  i)
@@ -134,32 +138,74 @@ class Snake():
                 
         
         self.Draw(screen,color)            
+
                  
-        
-        
-            
-
     def Eating(self,apple):
+        
+        print(self.body)
+        
+        if apple.colliderect(self.body[0]) == True:
+            
+            self.body.append(pg.Rect((self.body[-1].left,self.body[-1].top),(rw,rh)))
 
+            
         pass
 
-    def Colide(self, array):
-
-        pass
     
+
+    def Colide(self,mapa):
+                 
+        if self.body[0].right >= mapa.right or self.body[0].left <= mapa.left or self.body[0].bottom >= mapa.bottom or self.body[0].top <= mapa.top or self.body[0].collidelist(self.body[2:]) != -1:
+
+            self.body[0].center = (WIDTH//2,HEIGHT//2)
+            
+            return "gameover"
+        
+        else:
+            
+            return "running"
+
 
 
 class Apple():
 
     def __init__(self):
 
-        pass
-    
-    def Draw(self):
+        self.apx = rh*20-rh//2
+        self.apy = rh*20-rh//2
+        self.apw = rh
+        self.aph = rh
+        self.ap = pg.Rect((self.apx,self.apy),(self.apw,self.aph))
 
-        pass
-    
-    pass
+    def Draw_Apple(self,screen):
+
+        pg.draw.rect(screen,RED,self.ap,0)
+
+    def Collide(self,head,map):
+
+        if head.colliderect(self.ap) != False:
+
+            self.ap.right = random.randrange(map.left,map.right,rh)
+            self.ap.top = random.randrange(map.top,map.bottom,rh)
+            
+            
+
+
+class Map():
+
+    def __init__(self):
+
+        self.mx = rh
+        self.my = rh
+        self.mw = REC_WIDTH
+        self.mh = REC_HEIGHT
+        self.map = pg.Rect((self.mx,self.my),(self.mw,self.mh))
+        self.map.centerx = WIDTH//2
+        self.map.centery = HEIGHT//2
+        
+    def Draw_Map(self,screen):
+
+        pg.draw.rect(screen,BLACK,self.map,4)
 
 
 def Main():
@@ -176,14 +222,15 @@ def Main():
     # INIT SCREEN TEXTS
 
     Init_Screen_Text = myfont.render(" PRESS SPACE TO PLAY ", False, BLACK)
+    GO_Screen_Text = myfont.render(" PERDISTE MARICON ", False, RED)
 
     # GAME SCREEN TEXTS
 
     Game_Screen_Pause = myfont.render("PAUSE", False, RED)
 
     orochi = Snake()
-
-    c = 0
+    mapita = Map()
+    mansana = Apple()
     
     while True:
 
@@ -223,10 +270,14 @@ def Main():
             #Here goes any display logic to game start screen
             screen.fill(WHITE)
             pg.time.delay(orochi.speed)
+            mapita.Draw_Map(screen)
+            mansana.Draw_Apple(screen)
+            current_game_state = orochi.Colide(mapita.map)
+            orochi.Eating(mansana.ap)
+            mansana.Collide(orochi.body[0],mapita.map)
+            
             
             for event in pg.event.get():
-                        
-                
                 if event.type == pg.KEYDOWN:                                        
                     orochi.SetState(event.key) 
                     if event.key == pg.K_SPACE:
@@ -270,11 +321,21 @@ def Main():
         # GAMEOVER SCREEN
         elif current_game_state == "gameover":
 
-            #Here goes any display logic to game start screen
-            screen.fill(BLACK)
-
             
-            #Here ends any display logic to game start screen
+            screen.fill(BLACK)
+            screen.blit(GO_Screen_Text,(WIDTH//3,HEIGHT//2))
+            
+            for event in pg.event.get():
+                if event.type == pg.KEYDOWN:
+                    if event.key == pg.K_SPACE:
+                        current_game_state = "running"
+                        print("Game state changed to RUNNING")
+                if event.type == pg.QUIT:
+                    print("QUIT")
+                    pg.quit()
+                    sys.exit()
+            
+            
 
             pass
 
