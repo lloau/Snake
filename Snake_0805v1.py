@@ -36,7 +36,7 @@ class Snake():
 
     def __init__(self):
 
-        self.speed = 500
+        self.speed = 100
         self.posx = WIDTH//2 - rw//2
         self.posy = HEIGHT//2 - rh//2
 
@@ -106,35 +106,57 @@ class Snake():
         
         
         
-        for i in range(len(self.body)):
+        for i in range(len(self.body)-1,0,-1):
+
 
             if self.snake_state == "up":
-                if self.body_len-i-1 > 0:
-                    self.body[self.body_len-i-1].centerx = self.body[self.body_len-i-2].centerx
-                    self.body[self.body_len-i-1].centery = self.body[self.body_len-i-2].centery
+
+                if i == len(self.body)-1:
+                    self.body[0].centery -= rh
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery         
+                
                 else:
-                    self.body[0].centery -= rh         
+                    
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery
+                            
                 
             elif self.snake_state == "down":
-                if self.body_len-i-1 > 0:
-                    self.body[self.body_len-i-1].centerx = self.body[self.body_len-i-2].centerx
-                    self.body[self.body_len-i-1].centery = self.body[self.body_len-i-2].centery
-                else:
+                
+                if i == len(self.body)-1:
                     self.body[0].centery += rh
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery         
+                
+                else:
+                    
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery
    
             elif self.snake_state == "right":
-                if self.body_len-i-1 > 0:
-                    self.body[self.body_len-i-1].centerx = self.body[self.body_len-i-2].centerx
-                    self.body[self.body_len-i-1].centery = self.body[self.body_len-i-2].centery
-                else:
+                
+                if i == len(self.body)-1:
                     self.body[0].centerx += rh
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery         
+                
+                else:
+                    
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery
 
             elif self.snake_state == "left":
-                if self.body_len-i-1 > 0:
-                    self.body[self.body_len-i-1].centerx = self.body[self.body_len-i-2].centerx
-                    self.body[self.body_len-i-1].centery = self.body[self.body_len-i-2].centery
-                else:
+                
+                if i == len(self.body)-1:
                     self.body[0].centerx -= rh
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery         
+                
+                else:
+                    
+                    self.body[i].centerx = self.body[i-1].centerx
+                    self.body[i].centery = self.body[i-1].centery
                 
         
         self.Draw(screen,color)            
@@ -158,6 +180,8 @@ class Snake():
         if self.body[0].right >= mapa.right or self.body[0].left <= mapa.left or self.body[0].bottom >= mapa.bottom or self.body[0].top <= mapa.top or self.body[0].collidelist(self.body[2:]) != -1:
 
             self.body[0].center = (WIDTH//2,HEIGHT//2)
+
+            self.body = [pg.Rect((self.posx,self.posy),(rw,rh)), pg.Rect((self.posx,self.posy),(rw,rh))]
             
             return "gameover"
         
@@ -185,8 +209,8 @@ class Apple():
 
         if head.colliderect(self.ap) != False:
 
-            self.ap.right = random.randrange(map.left,map.right,rh)
-            self.ap.top = random.randrange(map.top,map.bottom,rh)
+            self.ap.right = random.randrange(map.left+20,map.right-20,rh)
+            self.ap.top = random.randrange(map.top+20,map.bottom-20,rh)
             
             
 
@@ -274,12 +298,12 @@ def Main():
             mansana.Draw_Apple(screen)
             current_game_state = orochi.Colide(mapita.map)
             orochi.Eating(mansana.ap)
-            mansana.Collide(orochi.body[0],mapita.map)
-            
+            mansana.Collide(orochi.body[0],mapita.map)       
             
             for event in pg.event.get():
                 if event.type == pg.KEYDOWN:                                        
-                    orochi.SetState(event.key) 
+                    orochi.SetState(event.key)
+
                     if event.key == pg.K_SPACE:
                         current_game_state = "pause"
                         print("Game state changed to PAUSE")
@@ -290,7 +314,7 @@ def Main():
                     sys.exit()
                     
             orochi.Move(screen,GREEN)
-            
+           
             
             #Here ends any display logic to game start screen
 
